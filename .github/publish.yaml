@@ -1,0 +1,23 @@
+on: [push]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          target: wasm32-unknown-unknown
+      - uses: jetli/wasm-pack-action@v0.3.0
+      - run: |
+          cd crates/web-bindings
+          wasm-pack build
+          cd ../../frontend
+          npm install -g pnpm
+          pnpm install
+          pnpm build
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/dist
